@@ -1,0 +1,15 @@
+XGBoost Classification Report
+Run ID: 20251225_191836_5f9906
+Train size: 49511
+Test size: 12378
+Model: XGBoost
+
+              precision    recall  f1-score   support
+
+        Hold       0.99      0.88      0.93     12181
+        Sell       0.04      0.38      0.08        93
+         Buy       0.05      0.38      0.09       104
+
+    accuracy                           0.87     12378
+   macro avg       0.36      0.55      0.37     12378
+weighted avg       0.97      0.87      0.92     12378

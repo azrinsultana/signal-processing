@@ -16,8 +16,9 @@ atr_lookback_periods = [7, 14]
 atr_multipliers = [0.25, 0.5, 0.75, 1.0]
 
 **create a gird search fucntion based on those values which searched to find the most optimal one with 14000 searches.**
-Best optmial values are
+Best optmial values are,
 
+short_ma = 30, long_ma = 150, rsi_period = 7, rsi_low = 40, rsi_high = 60, atr_period = 14, atr_mult = 0.25
 
 The geenrated signals ratio are buy:sell: hold: = 16:17:67
 

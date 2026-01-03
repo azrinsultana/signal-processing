@@ -1,6 +1,6 @@
 An end-to-end Machine Learning pipeline for financial trading signal generation using classical ML and deep learning models, test with another dataset to verify whether our model can learn complex pattern and produce good output in another secnario.
 
-**signal generation using multiple indicators, MA, RSI, ATR** 
+## signal generation using multiple indicators, MA, RSI, ATR
 
 short_moving_average_periods = [5, 10, 15, 20, 30]
 

@@ -3,10 +3,13 @@ An end-to-end Machine Learning pipeline for financial trading signal generation 
 **Step 1: signal generation using multiple indicators, MA, RSI, ATR** 
 
 short_moving_average_periods = [5, 10, 15, 20, 30]
+
 long_moving_average_periods = [40, 60, 80, 100, 150]
 
 rsi_lookback_periods = [7, 14]
+
 rsi_oversold_thresholds = range(20, 41, 5)
+
 rsi_overbought_thresholds = range(60, 91, 5)
 
 atr_lookback_periods = [7, 14]

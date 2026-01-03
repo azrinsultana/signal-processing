@@ -24,7 +24,8 @@ The geenrated signals ratio are buy:sell: hold: = 16:17:67
 
 ![](https://github.com/azrinsultana/signal-processing/blob/main/plots/plot_2026-01-03%2015-06-00_0.png)
 
-The geenrated signal again refined by identifying local highs and lows in the price series using generate_extreme_signal. This produces cleaner, more meaningful BUY and SELL points 
+**The geenrated signal again refined by identifying local highs and lows in the price series using generate_extreme_signal. This produces cleaner, more meaningful BUY and SELL points** these are the final refined signals for traning and testing the model
+![](https://github.com/azrinsultana/signal-processing/blob/main/plots/plot_2026-01-03%2015-06-00_1.png)
 
 ## Output
 **LightGBM model performance**
@@ -67,5 +68,9 @@ The geenrated signal again refined by identifying local highs and lows in the pr
 
 
 **Finally, we tested on different dataset based on our trained model and generated signals **
-
-
+#### Signal plot with generated signal by LightGBM model
+![](https://github.com/azrinsultana/signal-processing/blob/main/plots/plot_2026-01-03%2015-06-00_2.png)
+#### Signal plot with generated signal by CNN model
+![](https://github.com/azrinsultana/signal-processing/blob/main/plots/plot_2026-01-03%2015-06-00_3.png)
+#### Signal plot with generated signal by CNN-LSTM model
+![](https://github.com/azrinsultana/signal-processing/blob/main/plots/plot_2026-01-03%2015-06-00_4.png)

@@ -25,7 +25,7 @@ The geenrated signals ratio are buy:sell: hold: = 16:17:67
 The geenrated signal again refined by identifying local highs and lows in the price series using generate_extreme_signal. This produces cleaner, more meaningful BUY and SELL points 
 
 ## Output
-LightGBM model performance
+**LightGBM model performance**
 ===== 20% Test Classification Report ======
               precision    recall  f1-score   support
 
@@ -34,8 +34,19 @@ LightGBM model performance
          Buy       0.76      0.95      0.84      2007
 
     accuracy                           0.88     12358
-   macro avg       0.83      0.90      0.86     12358
-weighted avg       0.89      0.88      0.88     12358
+    macro avg       0.83      0.90      0.86     12358
+    weighted avg       0.89      0.88      0.88     12358
+1D CNN model performance:
+====== 20% Test Classification Report ======
+              precision    recall  f1-score   support
+
+        Hold       0.96      0.85      0.90      8057
+        Sell       0.78      0.98      0.80      2294
+         Buy       0.92      0.90      0.91      2007
+
+    accuracy                           0.88     12358
+    macro avg       0.86      0.91      0.87     12358
+    weighted avg       0.90      0.88      0.89     12358
 
 
 

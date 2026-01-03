@@ -1,0 +1,15 @@
+XGBoost Classification Report
+Run ID: 20260102_134659_317058
+Train size: 49447
+Test size: 12362
+Model: LightGBM
+
+              precision    recall  f1-score   support
+
+        Hold       0.95      0.82      0.88      8061
+        Sell       0.75      0.90      0.82      2294
+         Buy       0.71      0.93      0.81      2007
+
+    accuracy                           0.85     12362
+   macro avg       0.80      0.89      0.84     12362
+weighted avg       0.87      0.85      0.86     12362

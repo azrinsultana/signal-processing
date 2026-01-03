@@ -1,0 +1,15 @@
+XGBoost Classification Report
+Run ID: 20260102_224439_5bae75
+Train size: 49431
+Test size: 12358
+Model: 1D CNN
+
+              precision    recall  f1-score   support
+
+        Hold       0.95      0.91      0.93      8057
+        Sell       0.79      0.97      0.87      2294
+         Buy       0.94      0.86      0.90      2007
+
+    accuracy                           0.92     12358
+   macro avg       0.90      0.91      0.90     12358
+weighted avg       0.92      0.92      0.92     12358

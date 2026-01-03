@@ -1,7 +1,64 @@
+import numpy as np
 import matplotlib.pyplot as plt
+import pandas as pd
+def plot_trading_signals(df, title, signal_col="signal", limit=10000):
+    df = df.copy().iloc[:limit].reset_index(drop=True)
+
+    # Resolve signal column safely (case-insensitive)
+    col_map = {c.lower(): c for c in df.columns}
+    signal_col = col_map.get(signal_col.lower())
+
+    if signal_col is None:
+        raise ValueError("Signal column not found")
+
+    # Force numeric
+    df[signal_col] = pd.to_numeric(df[signal_col], errors="coerce")
+    df["close"] = pd.to_numeric(df["close"], errors="coerce")
+
+    print("Signal counts:")
+    print(df[signal_col].value_counts())
+
+    x = np.arange(len(df))
+    close = df["close"].values
+    signal = df[signal_col].values
+
+    plt.figure(figsize=(10, 7))
+    plt.plot(x, close, label="Close Price", linewidth=1.5)
+
+    # BUY
+    buy_idx = signal == 1
+    plt.scatter(
+        x[buy_idx],
+        close[buy_idx],
+        marker="^",
+        color="green",
+        label="BUY",
+        s=25,
+        zorder=3
+    )
+
+    # SELL
+    sell_idx = signal == -1
+    plt.scatter(
+        x[sell_idx],
+        close[sell_idx],
+        marker="v",
+        color="red",
+        label="SELL",
+        s=25,
+        zorder=3
+    )
+
+    plt.title(title)
+    plt.xlabel("Index")
+    plt.ylabel("Price")
+    plt.legend()
+    plt.grid(alpha=0.3)
+    plt.tight_layout()
+    plt.show()
 
 
-def generate_signal_plot(data_plot, val_limit=5000000):
+def generate_signal_plot(data_plot, title, val_limit=5000000):
     df = data_plot.iloc[:val_limit, :].copy()
 
     # Auto-detect close column
@@ -20,23 +77,23 @@ def generate_signal_plot(data_plot, val_limit=5000000):
              label='Close Price', linewidth=0.5)
 
     # Combine Buy and Sell Signals
-    if "Signal" not in df.columns:
+    if "signal" not in df.columns:
         raise KeyError("No 'Signal' column found in dataframe.")
 
-    signals = df[df['Signal'] != 0]
+    signals = df[df['signal'] != 0]
 
     # Plot Sell Signals
-    sell_signals = signals[signals['Signal'] == -1]
+    sell_signals = signals[signals['signal'] == -1]
     plt.scatter(sell_signals.index, sell_signals[close_col],
                 c='red', label='Sell Signal', marker='o', s=14)
 
     # Plot Buy Signals
-    buy_signals = signals[signals['Signal'] == 1]
+    buy_signals = signals[signals['signal'] == 1]
     plt.scatter(buy_signals.index, buy_signals[close_col],
                 c='blue', label='Buy Signal', marker='o', s=14)
 
     # Chart Customization
-    plt.title('Buy/Sell Signals on Close Price on test data', fontsize=16)
+    plt.title(title, fontsize=16)
     plt.xlabel('Date', fontsize=12)
     plt.ylabel('Close Price', fontsize=12)
     plt.xticks(rotation=45, fontsize=10)

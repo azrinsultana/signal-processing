@@ -1,30 +1,27 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-import os
-import pandas as pd
 import argparse
+import os
 
+import pandas as pd
+
+from modules.chart import generate_signal_plot
 from modules.dataset_loader import load_dataset, load_test_dataset
+from modules.feature_generate import extract_fast_features
+from modules.feature_selection import select_best_features
+from modules.models import (
+    lgbmodel,
+    predict_with_new_dataset, cnn1d_model, cnn_lstm_model
+)
 from modules.preprocessing import (
     rename_col,
     handling_nan_after_feature_generate,
     prepare_dataset_for_model, rename_test_col
 )
-from modules.chart import generate_signal_plot
 from modules.signal_label_processing import (
     prepare_signal,
     visualize_dataset
-)
-from modules.feature_generate import extract_fast_features
-from modules.feature_selection import select_best_features
-from modules.models import (
-    xgbmodel,
-    lgbmodel,
-    xgbmodel_adasyn,
-    xgbmodel_kfold,
-    xgbmodel_comparison_with_adasyn_smote,
-    predict_with_new_dataset
 )
 from modules.simulator import run_backtesting_simulator
 from modules.utility import (
@@ -41,10 +38,7 @@ from modules.utility import (
 
 
 class SignalMLPipeline:
-    """
-    A full end-to-end ML pipeline for generating signals,
-    feature extraction, feature selection and model training/testing.
-    """
+
 
     def __init__(self, data_dir_, file_name_, test_file_path_, n_features=20, visualize=False):
         self.visualize = visualize
@@ -61,7 +55,9 @@ class SignalMLPipeline:
         self.df_features = None
         self.selected_features = None
         self.pipe = None
-        self.model = None
+        # self.model = None
+        self.models = {}
+        self.reports = {}
 
         self.short_ma = None
         self.long_ma = None
@@ -157,10 +153,7 @@ class SignalMLPipeline:
     # SIGNAL GENERATION
     # ---------------------------
     def generate_labels(self):
-        print("Generating labels from raw data...")
-        # df_subset = self.raw_data.sample(n=1000, random_state=42)
 
-        # self.dataset = prepare_hybrid_signal(df_subset)
         signal_params = {
             'raw_data':  self.raw_data,
             'short_ma': self.short_ma,
@@ -207,17 +200,14 @@ class SignalMLPipeline:
         print("Performing feature selection...")
 
         df = self.df_features.dropna(subset=["signal"]).copy()
-        print("traind dataset features", df.columns)
         X = df.drop(columns=["signal"])
         y = df["signal"]
-        print("printing the y",y.value_counts())
         X = X.fillna(X.mean())
 
         selected_features, votes, masks, pipe = select_best_features(X, y, self.n_features)
         selected_features = selected_features[selected_features != "time"]
 
         self.selected_features = list(selected_features)
-        print("orinting the selected features", self.selected_features)
         self.pipe = pipe
 
         # Save internally
@@ -235,64 +225,144 @@ class SignalMLPipeline:
     def train_model(self, X, y):
         print("Preparing dataset for model training...")
 
-        x_selected = X[self.selected_features]
-        print(x_selected.head(), x_selected.shape, x_selected.columns)
-        x_processed, y_mapped, pipe, sample_weight_ = prepare_dataset_for_model(x_selected, y, sample_weight=True)
-        print('Training raw LGB model with sample weight')
-        model, _ = lgbmodel(x_processed, y_mapped, sample_weight_, report_dir='reports')
+        # ------------------------------------
+        # 1. Select features
+        # ------------------------------------
+        x_selected = X[self.selected_features].copy()
+        print("Selected feature shape:", x_selected.shape)
 
-        self.model = model
+        # ------------------------------------
+        # 2. Preprocess (shared for all models)
+        # ------------------------------------
+        x_processed, y_mapped, pipe, sample_weight_ = prepare_dataset_for_model(
+            x_selected,
+            y,
+            sample_weight=True
+        )
+
         self.pipe = pipe
 
-    # ---------------------------
-    # SAVE + LOAD MODEL
-    # ---------------------------
+        self.models = {}
+        self.reports = {}
+
+        print("\n=== Training LightGBM ===")
+        lgb_model, lgb_run = lgbmodel(
+            x_processed,
+            y_mapped,
+            sample_weight_,
+            report_dir="reports"
+        )
+        self.models["LightGBM"] = lgb_model
+
+        # ------------------------------------
+        # 5. Train 1D CNN
+        # ------------------------------------
+        print("\n=== Training 1D CNN ===")
+        cnn_model, cnn_run = cnn1d_model(
+            x_processed,
+            y_mapped,
+            sample_weight_,
+            report_dir="reports"
+        )
+        self.models["CNN"] = cnn_model
+
+        # ------------------------------------
+        # 6. Train CNN + LSTM
+        # ------------------------------------
+        print("\n=== Training CNN + LSTM ===")
+        cnn_lstm_model_, cnn_lstm_run = cnn_lstm_model(
+            x_processed,
+            y_mapped,
+            sample_weight_,
+            report_dir="reports"
+        )
+        self.models["CNN_LSTM"] = cnn_lstm_model_
+
+        print("\n[✓] Training completed for all models:")
+        for name in self.models:
+            print("   -", name)
+
     def save(self):
-        save_model(self.pipe, self.selected_features, self.model)
+
+        os.makedirs("saved_models", exist_ok=True)
+
+        save_model(self.pipe, self.selected_features, None)  # no save_dir parameter needed
+
+        for name, model in self.models.items():
+            if name == "LightGBM":
+                model_path = os.path.join("saved_models", f"{name}_model.pkl")
+                import joblib
+                joblib.dump(model, model_path)
+            else:
+                model_path = os.path.join("saved_models", f"{name}_model.keras")
+                model.save(model_path)
+            print(f"[✓] Saved {name} model → {model_path}")
+
+        print("[✓] All models and pipeline saved successfully.")
 
     def load(self):
-        self.pipe, self.selected_features, self.model = load_model()
-        print("Model loaded successfully.")
 
-    # ---------------------------
-    # TESTING ON NEW DATA
-    # ---------------------------
+        self.pipe, self.selected_features, _ = load_model(load_dir="saved_models")
+        self.models = {}
+        for name in ["LightGBM", "CNN", "CNN_LSTM"]:
+            if name == "LightGBM":
+                model_path = os.path.join("saved_models", f"{name}_model.pkl")
+                import joblib
+                self.models[name] = joblib.load(model_path)
+            else:
+                model_path = os.path.join("saved_models", f"{name}_model.keras")
+                from keras.models import load_model as keras_load_model
+                self.models[name] = keras_load_model(model_path)
+            print(f"[✓] Loaded {name} model → {model_path}")
+
+        print("[✓] All models and pipeline loaded successfully.")
+
     def test_new_dataset(self):
         print(f"Loading external test dataset...{self.test_file_path}")
+
+        # ----------------------------
+        # Load & prepare test dataset
+        # ----------------------------
         test_df = load_test_dataset(self.test_file_path)
         test_df['signal'] = 0
         test_df = rename_test_col(test_df)
 
         print("Extracting features from test dataset...")
-        # df_feat = extract_fast_features(self.dataset, self.short_ma, self.long_ma, self.rsi_period, self.atr_period)
-
-        test_df_features = extract_fast_features(test_df.iloc[-10000:, :],self.short_ma, self.long_ma, self.rsi_period, self.atr_period)
-        test_df_features = handling_nan_after_feature_generate(test_df_features)
-        print("testing features ",test_df_features.columns)
-        print(f'Using the selected features {self.selected_features}')
-
-        if self.selected_features:
-            print("now checking test features")
-            x = test_df_features[self.selected_features].copy()
-        else:
-            pipe_, selected_features_, model_ = load_model()
-            self.selected_features = selected_features_
-
-            x = test_df_features[self.selected_features].copy()
-            self.pipe = pipe_
-            self.model = model_
-        print("printing X", x)
-        print("Predicting signals...")
-        result_df = predict_with_new_dataset(
-            x, self.pipe, self.model,
-            test_df_features[self.selected_features]
+        test_df_features = extract_fast_features(
+            test_df.iloc[-10000:, :],
+            self.short_ma, self.long_ma,
+            self.rsi_period, self.atr_period
         )
-        # Add 'close' column as an additional feature for plotting result
-        result_df['close'] = test_df_features['close']
-        result_df.reset_index(drop=True, inplace=True)
-        generate_signal_plot(result_df, val_limit=10000)
+        test_df_features = handling_nan_after_feature_generate(test_df_features)
 
-        return result_df
+        x_test = test_df_features[self.selected_features].copy()
+
+        # ----------------------------
+        # Predict for all models
+        # ----------------------------
+        all_results = {}
+
+        for model_name, model in self.models.items():
+            print(f"\n>>> Predicting signals using {model_name}...")
+            result_df = predict_with_new_dataset(
+                x_test, self.pipe, model,
+                test_df_features[self.selected_features]
+            )
+
+            # Add 'close' for plotting
+            result_df['close'] = test_df_features['close']
+            result_df.reset_index(drop=True, inplace=True)
+
+
+            all_results[model_name] = result_df
+
+            # Plot signals for this model
+            print(f">>> Generating signal plot for {model_name}...")
+            generate_signal_plot(result_df, title=f"{model_name} Signals", val_limit=10000)
+
+        print("\n[✓] Prediction completed for all models.")
+        return all_results
+
 
     # ---------------------------
     # RUN FULL PIPELINE
@@ -351,7 +421,7 @@ if __name__ == "__main__":
     if os.path.exists(DATASETS_DIR):
         data_dir = DATASETS_DIR
     else:
-        data_dir = r"D:\azrin\education\versity\3rd semester\foundation of computer programming\Make_Money_with_Tensorflow_2.0-master\Make_Money_with_Tensorflow_2.0-master\projects\datasets"
+        data_dir = r"D:\azrin\education\versity\3rd semester\foundation of computer programming\projects\datasets"
 
     training_file = "Cleaned_Signal_EURUSD_for_training_635_635_60000.csv"
     test_file = os.path.join(data_dir, 'GBPUSD_H1_20140525_20251021.csv')

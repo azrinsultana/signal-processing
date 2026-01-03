@@ -1,0 +1,23 @@
+XGBoost Classification Report
+Run ID: 20260103_121358_af96a3
+Train size: 49431
+Test size: 12358
+Model: CNN + LSTM
+CNN filters: [32, 64]
+CNN kernels: [3, 3]
+LSTM units: 64
+Dense units: 64
+Dropout: 0.3
+Learning rate: 0.001
+Batch size: 256
+Epochs: 50
+
+              precision    recall  f1-score   support
+
+        Hold       0.92      0.91      0.91      8057
+        Sell       0.77      0.97      0.85      2294
+         Buy       0.97      0.72      0.83      2007
+
+    accuracy                           0.89     12358
+   macro avg       0.89      0.86      0.86     12358
+weighted avg       0.90      0.89      0.89     12358

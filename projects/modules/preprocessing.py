@@ -17,9 +17,7 @@ def rename_col(df):
     if 'time' in df.columns:
         df['Date'] = pd.to_datetime(df['time'], unit='s')
 
-    # if 'volume' not in df.columns: df.rename(columns={'open':'Open', 'high':'High', 'low':'Low', 'close':'Close',
-    # 'tick_volume':'Volume'}, inplace=True) else: df.rename(columns={'open':'Open', 'high':'High', 'low':'Low',
-    # 'close':'Close', 'volume':'Volume'}, inplace=True)
+
 
     df.rename(columns={'Open': 'open', 'High': 'high', 'Low': 'low', 'Close': 'close', 'Volume': 'volume', 'Signal':'signal'},
               inplace=True)

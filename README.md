@@ -1,6 +1,6 @@
 An end-to-end Machine Learning pipeline for financial trading signal generation using classical ML and deep learning models, test with another dataset to verify whether our model can learn complex pattern and produce good output in another secnario.
 
-**Step 1: signal generation using multiple indicators, MA, RSI, ATR** 
+**signal generation using multiple indicators, MA, RSI, ATR** 
 
 short_moving_average_periods = [5, 10, 15, 20, 30]
 
@@ -21,4 +21,11 @@ Best optmial values are,
 short_ma = 30, long_ma = 150, rsi_period = 7, rsi_low = 40, rsi_high = 60, atr_period = 14, atr_mult = 0.25
 
 The geenrated signals ratio are buy:sell: hold: = 16:17:67
+
+The geenrated signal again refined by identifying local highs and lows in the price series using generate_extreme_signal. This produces cleaner, more meaningful BUY and SELL points 
+
+## Output
+
+
+
 

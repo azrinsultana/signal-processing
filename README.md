@@ -49,7 +49,18 @@ The geenrated signal again refined by identifying local highs and lows in the pr
     macro avg       0.86      0.91      0.87     12358
     weighted avg       0.90      0.88      0.89     12358
 
+** CNN-LSTM performance:**
+====== 20% Test Classification Report ======
+             
+              precision    recall  f1-score   support
 
+        Hold       0.97      0.96      0.96      8057
+        Sell       0.90      0.96      0.93      2294
+         Buy       0.96      0.91      0.94      2007
+
+    accuracy                           0.95     12358
+    macro avg       0.94      0.94      0.94     12358
+    weighted avg       0.95      0.95      0.95     12358
 
 
 

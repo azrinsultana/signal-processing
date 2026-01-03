@@ -28,7 +28,7 @@ The geenrated signal again refined by identifying local highs and lows in the pr
 **LightGBM model performance**
 ===== 20% Test Classification Report ======
               precision    recall  f1-score   support
-
+              precision    recall  f1-score   support
         Hold       0.95      0.86      0.90      8057
         Sell       0.80      0.88      0.83      2294
          Buy       0.76      0.95      0.84      2007

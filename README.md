@@ -22,6 +22,8 @@ short_ma = 30, long_ma = 150, rsi_period = 7, rsi_low = 40, rsi_high = 60, atr_p
 
 The geenrated signals ratio are buy:sell: hold: = 16:17:67
 
+![](https://github.com/azrinsultana/signal-processing/blob/main/plots/plot_2026-01-03%2015-06-00_0.png)
+
 The geenrated signal again refined by identifying local highs and lows in the price series using generate_extreme_signal. This produces cleaner, more meaningful BUY and SELL points 
 
 ## Output

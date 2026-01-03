@@ -39,28 +39,30 @@ The geenrated signal again refined by identifying local highs and lows in the pr
 **1D CNN model performance:**
 ====== 20% Test Classification Report ======
       
+             ====== 20% Test Classification Report ======
               precision    recall  f1-score   support
 
-        Hold       0.96      0.85      0.90      8057
-        Sell       0.78      0.98      0.80      2294
-         Buy       0.92      0.90      0.91      2007
+        Hold       0.94      0.95      0.94      8057
+        Sell       0.95      0.84      0.89      2294
+         Buy       0.85      0.92      0.89      2007
 
-    accuracy                           0.88     12358
-    macro avg       0.86      0.91      0.87     12358
-    weighted avg       0.90      0.88      0.89     12358
+    accuracy                           0.92     12358
+    macro avg       0.91      0.90      0.91     12358
+    weighted avg       0.93      0.92      0.92     12358
 
 **CNN-LSTM performance:**
 ====== 20% Test Classification Report ======
              
-              precision    recall  f1-score   support
+               precision    recall  f1-score   support
 
-        Hold       0.97      0.96      0.96      8057
-        Sell       0.90      0.96      0.93      2294
-         Buy       0.96      0.91      0.94      2007
+        Hold       0.92      0.89      0.90      8057
+        Sell       0.94      0.77      0.84      2294
+         Buy       0.78      0.96      0.82      2007
 
-    accuracy                           0.95     12358
-    macro avg       0.94      0.94      0.94     12358
-    weighted avg       0.95      0.95      0.95     12358
+    accuracy                           0.88     12358
+    macro avg       0.86      0.87      0.86     12358
+    weighted avg       0.90      0.88      0.88     12358
+
 
 **Finally, we tested on different dataset based on our trained model and generated signals **
 

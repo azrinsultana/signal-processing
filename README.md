@@ -62,7 +62,6 @@ The geenrated signal again refined by identifying local highs and lows in the pr
     macro avg       0.94      0.94      0.94     12358
     weighted avg       0.95      0.95      0.95     12358
 
-**Finally, we tested on different dataset**
-
+**Finally, we tested on different dataset based on our trained model and generated signals **
 
 
